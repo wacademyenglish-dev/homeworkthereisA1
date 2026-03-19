@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>WOLF LABS | Homework: Chicago Experience</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-spotify: #121212;
+            --bg-card: #181818;
+            --bg-hover: #282828;
+            --spotify-green: #1DB954;
+            --text-main: #FFFFFF;
+            --text-sub: #B3B3B3;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-spotify);
+            color: var(--text-main);
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            height: 100%;
+            position: fixed;
+            width: 100%;
+        }
+
+        main {
+            height: 100%;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: calc(2rem + env(safe-area-inset-bottom));
+        }
+
+        .glass-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .option-btn {
+            background: #242424;
+            border-radius: 14px;
+            transition: all 0.2s ease;
+            color: var(--text-main);
+            font-weight: 600;
+            border: 2px solid transparent;
+            min-height: 60px;
+        }
+
+        .option-btn:active { transform: scale(0.96); background: #2a2a2a; }
+        .correct { background: var(--spotify-green) !important; color: #000 !important; border-color: var(--spotify-green) !important; }
+        .wrong { background: #E91429 !important; border-color: #E91429 !important; }
+
+        .progress-track { height: 6px; background: #3e3e3e; border-radius: 3px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--spotify-green); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        .feedback-overlay {
+            background: #181818;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .feedback-overlay.show { transform: translateY(0); }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+        .animate-shake { animation: shake 0.3s ease-in-out; }
+
+        .btn-nav {
+            background: #282828;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #B3B3B3;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-full w-full">
+
+    <!-- Header -->
+    <header class="shrink-0 p-5 flex justify-between items-center bg-[#121212]/95 backdrop-blur-lg z-50 pt-[calc(1.25rem+env(safe-area-inset-top))]">
+        <div class="flex items-center gap-2">
+            <button id="btn-back" onclick="handleBack()" class="btn-nav" style="visibility: hidden;">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="flex flex-col ml-1">
+                <span class="font-black text-sm tracking-tight">WOLF LABS</span>
+                <span class="text-[8px] uppercase tracking-widest text-[#1DB954] font-bold">Homework Mission</span>
+            </div>
+        </div>
+        <div id="score-display" class="hidden text-[10px] font-black bg-[#282828] px-4 py-2 rounded-full border border-white/5">
+            SCORE: <span id="current-score" class="text-[#1DB954]">0</span>
+        </div>
+    </header>
+
+    <main id="app-container" class="flex-grow px-6">
+        
+        <!-- View: Home -->
+        <section id="view-home" class="min-h-full flex flex-col justify-center animate-in fade-in duration-500 py-10">
+            <div class="mb-10 text-center">
+                <div class="w-20 h-20 bg-[#1DB954] text-black rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-[#1DB954]/20">
+                    <i class="fas fa-home text-3xl"></i>
+                </div>
+                <h1 class="text-4xl font-black mb-2 tracking-tighter leading-none">The Chicago <br><span class="text-[#1DB954]">Experience</span></h1>
+                <p class="text-[#B3B3B3] font-medium text-sm mt-4">Review the lesson and complete the tasks.</p>
+            </div>
+
+            <button onclick="showRecap()" class="btn-premium w-full py-5 text-xl shadow-lg active:scale-95 transition-all">
+                START MISSION
+            </button>
+        </section>
+
+        <!-- View: Grammar Recap -->
+        <section id="view-recap" class="hidden min-h-full flex flex-col justify-center animate-in fade-in py-10">
+            <div class="glass-card p-8 mb-8 shadow-2xl">
+                <h2 class="text-[#1DB954] font-black text-[10px] uppercase tracking-[0.3em] mb-6">Briefing / Grammar</h2>
+                <div class="space-y-6">
+                    <div>
+                        <p class="text-xl font-bold text-white mb-2">There is / There are</p>
+                        <p class="text-sm text-[#B3B3B3] leading-relaxed">Use <b>There is</b> for one thing (singular) and <b>There are</b> for two or more things (plural).</p>
+                    </div>
+                    <ul class="space-y-3">
+                        <li class="flex items-center gap-3 text-sm">
+                            <i class="fas fa-plus text-[#1DB954]"></i> <span>[There is] a park.</span>
+                        </li>
+                        <li class="flex items-center gap-3 text-sm">
+                            <i class="fas fa-plus text-[#1DB954]"></i> <span>[There are] many schools.</span>
+                        </li>
+                        <li class="flex items-center gap-3 text-sm">
+                            <i class="fas fa-minus text-[#E91429]"></i> <span>[There isn't] a beach.</span>
+                        </li>
+                        <li class="flex items-center gap-3 text-sm">
+                            <i class="fas fa-question text-blue-400"></i> <span>[Is there] a bank?</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <button onclick="showReady()" class="btn-premium w-full py-5 text-xl active:scale-95 transition-all">
+                GOT IT!
+            </button>
+        </section>
+
+        <!-- View: Ready -->
+        <section id="view-ready" class="hidden min-h-full flex flex-col justify-center items-center animate-in fade-in py-10">
+            <div class="text-[120px] mb-8 animate-bounce">🎯</div>
+            <h2 class="text-4xl font-black mb-4 uppercase tracking-tighter text-center">Are you ready?</h2>
+            <p class="text-[#B3B3B3] mb-10 text-center font-medium px-10">You have 15 challenges to complete. Good luck!</p>
+            <button onclick="startQuiz()" class="btn-premium w-full py-5 text-xl active:scale-95 transition-all">
+                READY!
+            </button>
+        </section>
+
+        <!-- View: Quiz -->
+        <section id="view-quiz" class="hidden min-h-full flex flex-col pt-4">
+            <div class="mb-8">
+                <div class="flex justify-between items-center mb-3 px-1">
+                    <span id="quiz-step-info" class="text-[9px] font-black uppercase text-[#B3B3B3] tracking-widest">Question 1</span>
+                    <span class="text-[9px] font-black uppercase text-[#1DB954] tracking-widest">A1 Mission</span>
+                </div>
+                <div class="progress-track">
+                    <div id="quiz-progress-fill" class="progress-fill" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div id="quiz-content" class="flex-grow flex flex-col justify-start">
+                <!-- JS Inject -->
+            </div>
+        </section>
+
+        <!-- View: Result -->
+        <section id="view-result" class="hidden min-h-full flex flex-col justify-center items-center py-10">
+            <div class="glass-card p-10 text-center relative overflow-hidden w-full max-w-[340px]">
+                <div class="w-16 h-16 bg-[#1DB954] rounded-2xl mx-auto flex items-center justify-center text-black shadow-lg mb-6">
+                    <i class="fas fa-award text-2xl"></i>
+                </div>
+                <h2 class="text-2xl font-black mb-1">Homework Done!</h2>
+                <p class="text-[9px] font-bold text-[#B3B3B3] uppercase tracking-[0.2em] mb-8">Chicago Experience</p>
+
+                <div class="bg-black/40 p-8 rounded-3xl mb-8 border border-white/5">
+                    <p id="res-score" class="text-6xl font-black text-white leading-none">0/15</p>
+                    <p class="text-[9px] font-bold text-[#B3B3B3] uppercase mt-3 tracking-widest">Accuracy Score</p>
+                </div>
+
+                <div class="p-4 bg-white/10 text-white rounded-full font-black uppercase text-[10px] tracking-widest mb-4">
+                    <i class="fas fa-camera mr-2"></i> Take a Screenshot
+                </div>
+                <p class="text-[9px] text-[#B3B3B3] leading-relaxed px-4">Send this result to your teacher to confirm your progress.</p>
+            </div>
+            
+            <button onclick="location.reload()" class="mt-10 text-[#B3B3B3] font-bold text-[10px] uppercase tracking-widest flex items-center gap-2">
+                <i class="fas fa-redo"></i> Try Again
+            </button>
+        </section>
+
+    </main>
+
+    <!-- Feedback Overlay -->
+    <div id="feedback-area" class="feedback-overlay hidden fixed bottom-0 left-0 right-0 z-50">
+        <div class="flex items-center justify-between px-6 py-6 bg-[#181818]">
+            <div class="flex items-center gap-3">
+                <div id="feedback-icon" class="w-10 h-10 rounded-full flex items-center justify-center text-black"></div>
+                <div>
+                    <h3 id="feedback-msg" class="text-lg font-black leading-none">Excellent!</h3>
+                    <p id="feedback-sub" class="text-[10px] text-[#B3B3B3] font-bold uppercase mt-1">Well done!</p>
+                </div>
+            </div>
+            <button onclick="nextQuestion()" class="bg-[#1DB954] text-black px-8 py-3 rounded-full font-black text-xs active:scale-90 transition-all shadow-lg">
+                NEXT <i class="fas fa-arrow-right ml-1"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            ["There ___ a park in Chicago.", ["is", "are", "am"], 0],
+            ["There ___ many trees on Taylor Street.", ["is", "are", "be"], 1],
+            ["___ there a grocery store nearby?", ["Is", "Are", "Am"], 0],
+            ["There ___ any restaurants here.", ["is", "aren't", "isn't"], 1],
+            ["There ___ a big library.", ["is", "are", "be"], 0],
+            ["There ___ two high schools.", ["is", "are", "am"], 1],
+            ["Is there ___ airport near your house?", ["a", "an", "any"], 1],
+            ["Are there ___ hospitals in this area?", ["a", "an", "any"], 2],
+            ["There ___ no cars today.", ["is", "are", "be"], 1],
+            ["There ___ a very big supermarket.", ["is", "are", "am"], 0],
+            ["There ___ many beautiful houses.", ["is", "are", "be"], 1],
+            ["___ there any hotels here?", ["Is", "Are", "Am"], 1],
+            ["There ___ a bus stop in the corner.", ["is", "are", "am"], 0],
+            ["There ___ three banks on this street.", ["is", "are", "be"], 1],
+            ["There ___ any beaches in the neighborhood.", ["is", "aren't", "isn't"], 1]
+        ];
+
+        let currentIdx = 0;
+        let score = 0;
+        let canClick = true;
+        let currentView = 'home';
+
+        function showView(viewId) {
+            currentView = viewId;
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(`view-${viewId}`).classList.remove('hidden');
+            
+            const backBtn = document.getElementById('btn-back');
+            backBtn.style.visibility = viewId === 'home' ? 'hidden' : 'visible';
+            
+            if (viewId === 'home') {
+                document.getElementById('score-display').classList.add('hidden');
+            }
+        }
+
+        function handleBack() {
+            if (currentView === 'recap') showView('home');
+            else if (currentView === 'ready') showView('recap');
+            else if (currentView === 'quiz') {
+                if (confirm('Exit mission? You will lose progress.')) showView('home');
+            }
+        }
+
+        function showRecap() { showView('recap'); }
+        function showReady() { showView('ready'); }
+
+        function startQuiz() {
+            currentIdx = 0;
+            score = 0;
+            canClick = true;
+            document.getElementById('score-display').classList.remove('hidden');
+            showView('quiz');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const q = questions[currentIdx];
+            const content = document.getElementById('quiz-content');
+            
+            document.getElementById('quiz-step-info').innerText = `Question ${currentIdx + 1}`;
+            document.getElementById('quiz-progress-fill').style.width = `${(currentIdx / 15) * 100}%`;
+            document.getElementById('current-score').innerText = score;
+            
+            // Hide feedback
+            const fa = document.getElementById('feedback-area');
+            fa.classList.remove('show');
+            setTimeout(() => fa.classList.add('hidden'), 300);
+
+            content.innerHTML = `
+                <div class="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <h2 class="text-3xl font-black leading-tight mb-10 text-left tracking-tight">
+                        ${q[0].replace('___', '<span class="text-[#1DB954] border-b-2 border-[#1DB954] pb-1">____</span>')}
+                    </h2>
+                    <div class="space-y-3">
+                        ${q[1].map((opt, i) => `
+                            <button onclick="checkAnswer(this, ${i === q[2]})" class="option-btn w-full p-4 text-left flex justify-between items-center group">
+                                <span class="text-base">${opt}</span>
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            canClick = true;
+        }
+
+        function checkAnswer(btn, isCorrect) {
+            if (!canClick) return;
+            canClick = false;
+
+            const btns = document.querySelectorAll('.option-btn');
+            const feedbackArea = document.getElementById('feedback-area');
+            const feedbackMsg = document.getElementById('feedback-msg');
+            const feedbackSub = document.getElementById('feedback-sub');
+            const feedbackIcon = document.getElementById('feedback-icon');
+            
+            feedbackArea.classList.remove('hidden');
+            setTimeout(() => feedbackArea.classList.add('show'), 10);
+
+            if (isCorrect) {
+                btn.classList.add('correct');
+                score++;
+                feedbackMsg.innerText = "Excellent!";
+                feedbackMsg.className = "text-lg font-black text-[#1DB954]";
+                feedbackSub.innerText = "Spot on!";
+                feedbackIcon.innerHTML = '<i class="fas fa-check"></i>';
+                feedbackIcon.className = "w-10 h-10 rounded-full flex items-center justify-center text-black bg-[#1DB954]";
+                document.getElementById('current-score').innerText = score;
+            } else {
+                btn.classList.add('wrong', 'animate-shake');
+                feedbackMsg.innerText = "Not quite!";
+                feedbackMsg.className = "text-lg font-black text-[#E91429]";
+                feedbackSub.innerText = "See the correct option in green.";
+                feedbackIcon.innerHTML = '<i class="fas fa-times"></i>';
+                feedbackIcon.className = "w-10 h-10 rounded-full flex items-center justify-center text-white bg-[#E91429]";
+                btns.forEach((b, i) => {
+                    if (questions[currentIdx][2] === Array.from(btns).indexOf(b)) {
+                        b.classList.add('correct');
+                    }
+                });
+            }
+        }
+
+        function nextQuestion() {
+            if (currentIdx < 14) {
+                currentIdx++;
+                renderQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            showView('result');
+            document.getElementById('res-score').innerText = `${score}/15`;
+            document.getElementById('feedback-area').classList.add('hidden');
+        }
+
+        document.addEventListener('touchstart', function() {}, {passive: true});
+    </script>
+</body>
+</html>
